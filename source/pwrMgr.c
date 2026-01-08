@@ -70,10 +70,10 @@
 /**************************************************************************/
 /*      LOCAL VARIABLES:                                                  */
 /**************************************************************************/
-static int sysevent_fd = -1;
+static int sysevent_fd;
 static token_t sysevent_token;
 static pthread_t sysevent_tid;
-static int sysevent_fd_gs = -1;
+static int sysevent_fd_gs;
 static token_t sysevent_token_gs;
 
 #ifdef INCLUDE_BREAKPAD
@@ -341,29 +341,35 @@ static bool PwrMgr_Register_sysevent()
 
     do
     {
+        sysevent_fd = sysevent_open("127.0.0.1", SE_SERVER_WELL_KNOWN_PORT, SE_VERSION, "rdkb_power_manger", &sysevent_token);
         if (sysevent_fd < 0)
-	{
-	    sysevent_fd = sysevent_open("127.0.0.1", SE_SERVER_WELL_KNOWN_PORT, SE_VERSION, "rdkb_power_manger", &sysevent_token);
-	}
+        {
+            PWRMGRLOG(ERROR, "rdkb_power_manager failed to register with sysevent daemon\n");
+            status = false;
+        }
+        else
+        {  
+            PWRMGRLOG(INFO, "rdkb_power_manager registered with sysevent daemon successfully\n");
+            status = true;
+        }
 
         //Make another connection for gets/sets
+        sysevent_fd_gs = sysevent_open("127.0.0.1", SE_SERVER_WELL_KNOWN_PORT, SE_VERSION, "rdkb_power_manager-gs", &sysevent_token_gs);
         if (sysevent_fd_gs < 0)
-	{
-	    sysevent_fd_gs = sysevent_open("127.0.0.1", SE_SERVER_WELL_KNOWN_PORT, SE_VERSION, "rdkb_power_manager-gs", &sysevent_token_gs);
-	}
-
-        if((sysevent_fd < 0) || (sysevent_fd_gs < 0))
-	{
-            PWRMGRLOG(ERROR, "rdkb_power_manger or rdkb_power_manager-gs failed to register with sysevent daemon\n");
+        {
+            PWRMGRLOG(ERROR, "rdkb_power_manager-gs failed to register with sysevent daemon\n");
             status = false;
-            sleep(5);
         }
-	else
-	{
-            PWRMGRLOG(INFO, "rdkb_power_manger and rdkb_power_manager-gs registered with sysevent daemon successfully\n");
+        else
+        {
+            PWRMGRLOG(INFO, "rdkb_power_manager-gs registered with sysevent daemon successfully\n");
             status = true;
-	}
+        }
 
+        if(status == false) {
+        	v_secure_system("/usr/bin/syseventd");
+                sleep(5);
+        }
     }while((status == false) && (retry++ < max_retries));
 
     if (status != false)
