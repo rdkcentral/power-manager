@@ -508,6 +508,25 @@ static void daemonize(void)
 #endif	
 }
 
+char* getPtr()
+{
+   return NULL;
+}
+
+int coverity_test()
+{
+   int tempVar;
+   int new = tempVar + 1;
+
+   int arr[3];
+   arr[5] = 100;
+
+   char* p = getPtr();
+   strcpy(p,"test");
+
+  char *ptr = (char*)malloc(5);
+  strcpy(ptr, "test");
+}
 
 /**
  *  @brief Init and run the Provisioning process
@@ -564,6 +583,7 @@ int main(int argc, char *argv[])
         }
 	PWRMGRLOG(INFO, "power manager app terminated\n")
     }
+    coverity_test(); //DUMMY Coverity test function Donot merge
     return status;
 }
 #endif
