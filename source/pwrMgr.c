@@ -171,7 +171,7 @@ static int PwrMgr_StateTranstion(char *cState)
 
     PWRMGR_PwrState newState = PWRMGR_STATE_UNKNOWN;
     PWRMGRLOG(INFO, "Entering into %s new state\n",__FUNCTION__);
-
+    printf("Test coverity workflow , %s");
     // Convert from sysevent string to power state
     int i=0;
     for (i=0;i<PWRMGR_STATE_TOTAL;i++) {

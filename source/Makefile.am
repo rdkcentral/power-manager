@@ -18,7 +18,7 @@
 ##########################################################################
 AM_CFLAGS = -D_ANSC_LINUX
 AM_CFLAGS += -D_ANSC_USER
-AM_CFLAGS += -D_ANSC_LITTLE_ENDIAN_
+AM_CFLAGS += -D_ANSC_LITTLE_ENDIAN_ -Wno-error
 AM_LDFLAGS = -lsysevent
 AM_LDFLAGS += -lsyscfg
 AM_CFLAGS +=  -I=/usr/include/ccsp
